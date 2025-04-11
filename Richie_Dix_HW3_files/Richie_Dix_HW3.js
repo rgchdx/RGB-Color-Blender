@@ -9,9 +9,13 @@ var direction = true;
 
 var positions = [];
 var colors = [];
-var numTriangles = 100;
+// Initial number of triangles
+var numTriangles = 2;
+// Initial color
 var currentColor = vec3(0.0, 0.0, 0.0);
-var colorBuffer;
+
+// Since we use colorBuffer outside as well, we will declare it outside of window.onload
+var positionBuffer, colorBuffer;
 
 window.onload = function init() {
     var canvas = document.getElementById("gl-canvas");
@@ -27,7 +31,7 @@ window.onload = function init() {
 
     thetaLoc = gl.getUniformLocation(program, "theta");
 
-    // Generate circle geometry
+    // Generate circle geometry declaration
     let center = vec2(0, 0);
     let radius = 0.5;
     let angleStep = (2 * Math.PI) / numTriangles;
@@ -44,7 +48,7 @@ window.onload = function init() {
     }
 
     // ---- Load positions ----
-    var positionBuffer = gl.createBuffer();
+    positionBuffer = gl.createBuffer();
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(positions), gl.STATIC_DRAW);
 
@@ -61,7 +65,7 @@ window.onload = function init() {
     gl.vertexAttribPointer(colorLoc, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(colorLoc);
 
-    // ---- Sliders for RGB ----
+    // Sliders for the rgb values
     document.getElementById("red").addEventListener("input", (event) => {
         currentColor[0] = parseFloat(event.target.value);
         updateTriangleColors();
@@ -77,15 +81,10 @@ window.onload = function init() {
         updateTriangleColors();
     });
 
-    // Keyboard controls
-    window.onkeydown = function(event) {
-        var key = String.fromCharCode(event.keyCode);
-        switch (key) {
-            case '1': direction = !direction; break;
-            case '2': speed /= 2.0; break;
-            case '3': speed *= 2.0; break;
-        }
-    };
+    document.getElementById("rotation").addEventListener("input", (event) => {
+        numTriangles = parseInt(event.target.value);
+        updateCircleVertices();
+    });
 
     render();
 };
@@ -101,15 +100,46 @@ function render() {
 }
 
 function updateTriangleColors() {
+    // Update the color buffer with the new color
     colors = [];
     for (let i = 0; i < positions.length / 3; i++) {
         colors.push(currentColor, currentColor, currentColor);
     }
 
+    // Updating the color buffer
     gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
 
+    // Rebind the color attribute here
+    // Resetting the aColor attribute so the vColor will take it and out.
     var colorLoc = gl.getAttribLocation(gl.getParameter(gl.CURRENT_PROGRAM), "aColor");
     gl.vertexAttribPointer(colorLoc, 3, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(colorLoc);
+}
+
+function updateCircleVertices() {
+    positions = [];
+    colors = [];
+    let center = vec2(0, 0);
+    let radius = 0.5;
+    let angleStep = (2 * Math.PI) / numTriangles;
+
+    for (let i = 0; i < numTriangles; i++) {
+        let angle1 = i * angleStep;
+        let angle2 = (i + 1) * angleStep;
+
+        let p1 = vec2(center[0] + radius * Math.cos(angle1), center[1] + radius * Math.sin(angle1));
+        let p2 = vec2(center[0] + radius * Math.cos(angle2), center[1] + radius * Math.sin(angle2));
+
+        positions.push(center, p1, p2);
+        colors.push(currentColor, currentColor, currentColor);
+    }
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(positions), gl.STATIC_DRAW);
+
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
+
+    render(); 
 }
