@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <!-- saved from url=(0072)https://www.interactivecomputergraphics.com/Code/03/rotatingSquare3.html -->
 <html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>RGB Mixer</title>
+<title>Circle manipulator</title>
 
 <script id="vertex-shader" type="x-shader/x-vertex">
 #version 300 es
@@ -27,8 +27,7 @@ uniform float uMixValue;
 out vec4 fColor;
 
 void main() {
-    vec3 mixedColor = mix(vec3(1.0, 0.0, 0.0), vColor, uMixValue);
-    fColor = vec4(mixedColor, 1.0);
+    fColor = vec4(vColor, 1.0);
 }
 
 </script>
@@ -39,9 +38,14 @@ void main() {
 <script id="simplify-jobs-page-script" src="chrome-extension://pbanhockgagggenencehbnadejlgchfc/js/pageScript.bundle.js"></script></head>
 
 <body data-new-gr-c-s-check-loaded="14.1229.0" data-gr-ext-installed="">
-<div>
-    Color Blend: <input id="blend" type="range" min="0" max="100" value="50">
-</div>
+    <div>
+        <label for="red">Red:</label>
+        <input id="red" type="range" min="0" max="1" step="0.01" value="0.0">
+        <label for="green">Green:</label>
+        <input id="green" type="range" min="0" max="1" step="0.01" value="0.0">
+        <label for="blue">Blue:</label>
+        <input id="blue" type="range" min="0" max="1" step="0.01" value="0.0">
+    </div>
 <div>
     Size: <input id="size" type="range" min="0" max="100" value="50">
 </div>
