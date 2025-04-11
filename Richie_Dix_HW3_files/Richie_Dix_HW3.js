@@ -1,110 +1,92 @@
 "use strict";
 
 var gl;
-
 var theta = 0.0;
 var thetaLoc;
 
 var speed = 100;
 var direction = true;
 
-window.onload = function init()
-{
+var positions = [];
+var colors = [];
+
+window.onload = function init() {
     var canvas = document.getElementById("gl-canvas");
 
     gl = canvas.getContext('webgl2');
     if (!gl) alert("WebGL 2.0 isn't available");
 
-    //
-    //  Configure WebGL
-    //
     gl.viewport(0, 0, canvas.width, canvas.height);
     gl.clearColor(1.0, 1.0, 1.0, 1.0);
 
-    //  Load shaders and initialize attribute buffers
-
     var program = initShaders(gl, "vertex-shader", "fragment-shader");
-    gl.useProgram( program );
+    gl.useProgram(program);
 
-    var vertices = [
-        vec2(0,  1),
-        vec2(-1,  0),
-        vec2(1,  0),
-        vec2(0, -1)
-    ];
+    // Create circle from triangles
+    let center = vec2(0, 0);
+    let radius = 0.5;
+    let numTriangles = 100;
+    let angleStep = (2 * Math.PI) / numTriangles;
 
+    for (let i = 0; i < numTriangles; i++) {
+        let angle1 = i * angleStep;
+        let angle2 = (i + 1) * angleStep;
 
-    // Load the data into the GPU
+        let p1 = vec2(center[0] + radius * Math.cos(angle1), center[1] + radius * Math.sin(angle1));
+        let p2 = vec2(center[0] + radius * Math.cos(angle2), center[1] + radius * Math.sin(angle2));
 
-    var bufferId = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, bufferId);
-    gl.bufferData(gl.ARRAY_BUFFER, flatten(vertices), gl.STATIC_DRAW);
+        let color = vec4(1.0, 0.0, 0.0, 1.0); // Red
+        triangle(center, p1, p2, color);
+    }
 
-    // Associate out shader variables with our data buffer
+    // ---- Load positions ----
+    var positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(positions), gl.STATIC_DRAW);
 
-    var positionLoc = gl.getAttribLocation( program, "aPosition" );
-    gl.vertexAttribPointer( positionLoc, 2, gl.FLOAT, false, 0, 0 );
+    var positionLoc = gl.getAttribLocation(program, "aPosition");
+    gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc);
+
+    // ---- Load colors ----
+    var colorBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, flatten(colors), gl.STATIC_DRAW);
+
+    var colorLoc = gl.getAttribLocation(program, "aColor");
+    gl.vertexAttribPointer(colorLoc, 4, gl.FLOAT, false, 0, 0);
+    gl.enableVertexAttribArray(colorLoc);
 
     thetaLoc = gl.getUniformLocation(program, "uTheta");
 
-    // Initialize event handlers
-
-    document.getElementById("slider").onchange = function(event) {
-        //alter here to change the color
-    };
-    document.getElementById("Direction").onclick = function (event) {
-        direction = !direction;
-    };
-
-    document.getElementById("Controls").onclick = function( event) {
-        switch(event.target.index) {
-          case 0:
-            direction = !direction;
-            break;
-
-         case 1:
-            speed /= 2.0;
-            break;
-
-         case 2:
-            speed *= 2.0;
-            break;
-       }
+    // Input handlers (you can customize these more)
+    document.getElementById("blend").oninput = function (event) {
+        speed = 100 - event.target.value;
     };
 
     window.onkeydown = function(event) {
         var key = String.fromCharCode(event.keyCode);
-        switch( key ) {
-          case '1':
-            direction = !direction;
-            break;
-
-          case '2':
-            speed /= 2.0;
-            break;
-
-          case '3':
-            speed *= 2.0;
-            break;
+        switch (key) {
+            case '1': direction = !direction; break;
+            case '2': speed /= 2.0; break;
+            case '3': speed *= 2.0; break;
         }
     };
-
 
     render();
 };
 
-function render()
-{
-    gl.clear( gl.COLOR_BUFFER_BIT );
+function triangle(a, b, c, color) {
+    positions.push(a, b, c);
+    colors.push(color, color, color);
+}
+
+function render() {
+    gl.clear(gl.COLOR_BUFFER_BIT);
 
     theta += (direction ? 0.1 : -0.1);
     gl.uniform1f(thetaLoc, theta);
 
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-    setTimeout(
-        function () {requestAnimationFrame(render);},
-        speed
-    );
+    gl.drawArrays(gl.TRIANGLES, 0, positions.length);
+    setTimeout(() => requestAnimationFrame(render), speed);
 }
