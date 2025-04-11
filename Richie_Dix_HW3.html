@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!-- saved from url=(0072)https://www.interactivecomputergraphics.com/Code/03/rotatingSquare3.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>RGB Mixer</title>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+#version 300 es
+
+in vec4 aPosition;
+in vec3 aColor;
+out vec3 vColor;
+
+void
+main()
+{
+    gl_Position = aPosition;
+    vColor = aColor;
+}
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+#version 300 es
+precision mediump float;
+
+in vec3 vColor;
+uniform float uMixValue;
+out vec4 fColor;
+
+void main() {
+    vec3 mixedColor = mix(vec3(1.0, 0.0, 0.0), vColor, uMixValue);
+    fColor = vec4(mixedColor, 1.0);
+}
+
+</script>
+
+<script type="text/javascript" src="./Richie_Dix_HW3_files/initShaders.js"></script>
+<script type="text/javascript" src="./Richie_Dix_HW3_files/MVnew.js"></script>
+<script type="text/javascript" src="./Richie_Dix_HW3_files/Richie_Dix_HW3.js"></script>
+<script id="simplify-jobs-page-script" src="chrome-extension://pbanhockgagggenencehbnadejlgchfc/js/pageScript.bundle.js"></script></head>
+
+<body data-new-gr-c-s-check-loaded="14.1229.0" data-gr-ext-installed="">
+<div>
+Color Blend: <input id="slider" type="range" min="0" max="100" value="50">
+</div>
+
+<canvas id="gl-canvas" width="512" height="512">
+Oops ... your browser doesn't support the HTML5 canvas element
+</canvas>
+
+
+</body><grammarly-desktop-integration data-grammarly-shadow-root="true"><template shadowrootmode="open"><style>
+      div.grammarly-desktop-integration {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select:none;
+        user-select:none;
+      }
+
+      div.grammarly-desktop-integration:before {
+        content: attr(data-content);
+      }
+    </style><div aria-label="grammarly-integration" role="group" tabindex="-1" class="grammarly-desktop-integration" data-content="{&quot;mode&quot;:&quot;full&quot;,&quot;isActive&quot;:true,&quot;isUserDisabled&quot;:false}"></div></template></grammarly-desktop-integration></html>
