@@ -52,7 +52,9 @@ window.onload = function init() {
     gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
     gl.bufferData(gl.ARRAY_BUFFER, flatten(positions), gl.STATIC_DRAW);
 
+    // Getting the position location of aPosition attribute in the shader
     var positionLoc = gl.getAttribLocation(program, "aPosition");
+    // 2 Components, x and y and they are 32-bint floats.
     gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
     gl.enableVertexAttribArray(positionLoc);
 
@@ -100,7 +102,7 @@ function render() {
 }
 
 function updateTriangleColors() {
-    // Update the color buffer with the new color
+    // Clear color array for new data
     colors = [];
     for (let i = 0; i < positions.length / 3; i++) {
         colors.push(currentColor, currentColor, currentColor);
@@ -118,6 +120,7 @@ function updateTriangleColors() {
 }
 
 function updateCircleVertices() {
+    // Reset positions and colors and reapply the procedure done above
     positions = [];
     colors = [];
     let center = vec2(0, 0);
